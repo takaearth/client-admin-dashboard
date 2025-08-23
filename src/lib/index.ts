@@ -1,7 +1,7 @@
 import { getDoc, Timestamp as FirebaseTimestamp } from "firebase/firestore";
 
 // Helper function to format Timestamp or string date
-export function formatDate(dateValue: FirebaseTimestamp | string | undefined): string {
+export function formatDate(dateValue: any): string {
   if (!dateValue) return "-";
   if (dateValue instanceof FirebaseTimestamp) {
     return dateValue.toDate().toLocaleString(); // Or any other format you prefer

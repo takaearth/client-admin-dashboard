@@ -43,7 +43,7 @@ export default function FrequencyTabsSection() {
         let userIdentifier: string | undefined;
 
         // Attempt to get user identifier from transaction.user directly if it's a string
-        const tUser = transaction.user as any; // Use 'any' for flexibility if type is unknown/mixed
+        const tUser = transaction.userId as any; // Use 'any' for flexibility if type is unknown/mixed
         if (tUser && typeof tUser === "string") {
           userIdentifier = tUser;
         }

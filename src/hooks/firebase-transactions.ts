@@ -44,6 +44,7 @@ export default function useFirebaseTransactions() {
 
     const usersMap = new Map(users.map((user: User) => [user.id, user]));
     const enrichedTransactions = rawTransactions.map(transaction => {
+      if (!transaction || !transaction.userId) return transaction;
       let user = usersMap.get(transaction.userId);
 
       return{
