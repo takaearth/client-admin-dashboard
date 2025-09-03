@@ -26,7 +26,7 @@ const spaceMono = Space_Mono({
 
 export const metadata: Metadata = {
   title: "Taka Earth Dashboard",
-  description: "Taka Earth internal administrative dashboard",
+  description: "Taka Earth client administrative dashboard",
   icons: {
     icon: [{ url: "/favicon.ico" }, { url: "/icon.png", type: "image/png" }],
     apple: [{ url: "/apple-icon.png" }],
