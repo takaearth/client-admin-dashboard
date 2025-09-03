@@ -5,6 +5,7 @@ import { Card, CardDescription, CardContent, CardFooter, CardHeader, CardTitle }
 //custom
 import { cn } from "@/lib/utils";
 import { useGetSmartbins } from "@/data/smartbins";
+import { Smartbin } from "@/lib/types";
 
 const libraries: any = ["places"];
 const mapOptions = {
@@ -72,7 +73,7 @@ export default function SmartbinsMap({ className, ...props }: React.ComponentPro
             <MarkerClustererF>
               {(clusterer) => (
                 <React.Fragment>
-                  {smartbins?.map((smartbin, i) => {
+                  {smartbins?.map((smartbin: Smartbin, i: number) => {
                     // Ensure smartbin.coords is valid before rendering MarkerF
                     // Also, consider using a stable ID from `smartbin` for `key` and `activeMarker` if available,
                     // instead of index `i`, especially if the list can be filtered or reordered.
