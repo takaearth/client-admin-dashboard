@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 //ui
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertTriangle, HandCoins, Wallet } from "lucide-react";
@@ -7,11 +7,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 //custom ui
 import { PieChartCard } from "@/components/charts/pie-chart";
 //custom
-import useFirebaseUsers from "@/hooks/firebase-users";
-import useFirebaseTransactions from "@/hooks/firebase-transactions";
-
-import { toast } from "sonner";
-import { Button } from "../ui/button";
+import { useGetUsers } from "@/data/users";
+import { useGetTransactions } from "@/data/transactions";
+import { Transaction, User } from "@/lib/types";
 
 function CardSkeleton() {
   return (
@@ -31,29 +29,29 @@ function CardSkeleton() {
 }
 
 export function PointsStatsSection() {
-  const { users, loading, error } = useFirebaseUsers();
-  const { transactions, loading: loadingTransactions, error: errorTransactions } = useFirebaseTransactions();
+  const { data: users, error, isFetched } = useGetUsers();
+  const { data: transactions, error: errorTransactions, isFetched: isFetchedTransactions } = useGetTransactions();
 
   const [totalEarned, setTotalEarned] = useState(0);
   const [totalRedeemed, setTotalRedeemed] = useState(0);
 
-  useMemo(() => {
-    if (!loading && !error && users) {
+  useEffect(() => {
+    if (isFetched && !error && users) {
       //count total user points
-      const earned = users.reduce((total, user) => total + (user?.points || 0), 0);
+      const earned = users.reduce((total: number, user: User) => total + (user?.points || 0), 0);
       setTotalEarned(earned);
     }
-  }, [users, loading, error]);
+  }, [users, isFetched, error]);
 
-  useMemo(() => {
-    if (!loadingTransactions && !errorTransactions) {
+  useEffect(() => {
+    if (isFetchedTransactions && !errorTransactions) {
       //count total redeemed points
-      const redeemed = transactions.reduce((total, transaction) => total + (parseInt(transaction?.paid_amount || "0") || 0), 0);
+      const redeemed = transactions.reduce((total: number, transaction: Transaction) => total + (parseInt(transaction?.paid_amount || "0") || 0), 0);
       setTotalRedeemed(redeemed);
     }
-  }, [transactions, loadingTransactions, errorTransactions]);
+  }, [transactions, isFetchedTransactions, errorTransactions]);
 
-  if (loading) {
+  if (!isFetched) {
     return (
       <div className="grid grid-cols-1 gap-4 px-4 @xl/main:grid-cols-2 @5xl/main:grid-cols-4 lg:px-6">
         <CardSkeleton /> {/* Skeleton for Total Events card */}

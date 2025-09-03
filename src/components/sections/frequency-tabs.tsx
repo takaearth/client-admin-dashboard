@@ -8,38 +8,32 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { DataTable } from "@/components/tables/data-tables";
 import { userFrequencyTableColumns } from "@/components/tables/schemas/user-frequency";
 //custom
-import { UserFrequency } from "@/lib/types";
+import { SmartbinDrop, Transaction, UserFrequency } from "@/lib/types";
 import useFirebaseUsers from "@/hooks/firebase-users";
-import useFirebasePickups from "@/hooks/firebase-pickups";
-import useFirebaseRequests from "@/hooks/firebase-requests";
-import useFirebaseTransactions from "@/hooks/firebase-transactions";
-import useFirebaseSmartbinDrops from "@/hooks/firebase-smartbins-drops";
+import { useGetSmartbinsDrops } from "@/data/smartbins";
+import { useGetTransactions } from "@/data/transactions";
 
 export default function FrequencyTabsSection() {
   const { users, loading: usersLoading, error: usersError } = useFirebaseUsers();
-  const { pickups, loading: pickupsLoading, error: pickupsError } = useFirebasePickups();
-  const { requests, loading: requestsLoading, error: requestsError } = useFirebaseRequests();
-  const { transactions, loading: transactionsLoading, error: transactionsError } = useFirebaseTransactions();
-  const { smartbinsDrops, loading: smartbinsDropsLoading, error: smartbinsDropsError } = useFirebaseSmartbinDrops();
+  const { data: transactions, error: transactionsError, isFetched: transactionsFetched } = useGetTransactions();
+  const { data: smartbinsDrops, error: smartbinsDropsError, isFetched: smartbinsDropsFetched } = useGetSmartbinsDrops();
 
   const [dropFrequencyData, setDropFrequencyData] = useState<UserFrequency[]>([]);
-  const [pickupsFrequencyData, setPickupsFrequencyData] = useState<UserFrequency[]>([]);
-  const [requestsFrequencyData, setRequestsFrequencyData] = useState<UserFrequency[]>([]);
   const [transactionsFrequencyData, setTransactionsFrequencyData] = useState<UserFrequency[]>([]);
 
   useEffect(() => {
     // Clear data if still loading or if there's an error
-    if (usersLoading || usersError || transactionsLoading || transactionsError) {
+    if (usersLoading || usersError || !transactionsFetched || transactionsError) {
       setTransactionsFrequencyData([]);
       return;
     }
 
     // Proceed if all data is loaded successfully
     if (transactions && users) {
-      const completedTransactions = transactions.filter((trans) => trans.status?.toLocaleLowerCase() === "completed");
+      const completedTransactions = transactions.filter((trans: Transaction) => trans.status?.toLocaleLowerCase() === "completed");
 
       const countsByUserIdentifier: Record<string, number> = {};
-      completedTransactions.forEach((transaction) => {
+      completedTransactions.forEach((transaction: Transaction) => {
         let userIdentifier: string | undefined;
 
         // Attempt to get user identifier from transaction.user directly if it's a string
@@ -67,21 +61,21 @@ export default function FrequencyTabsSection() {
       // Clear data if loading, error, or no transactions
       setTransactionsFrequencyData([]);
     }
-  }, [transactions, transactionsLoading, transactionsError, users, usersLoading, usersError]);
+  }, [transactions, transactionsFetched, transactionsError, users, usersLoading, usersError]);
 
   useEffect(() => {
     // Clear data if still loading or if there's an error
-    if (usersLoading || usersError || smartbinsDropsLoading || smartbinsDropsError) {
+    if (usersLoading || usersError || !smartbinsDropsFetched || smartbinsDropsError) {
       setDropFrequencyData([]);
       return;
     }
 
     // Proceed if all data is loaded successfully
     if (smartbinsDrops && users) {
-      const syncedDrops = smartbinsDrops.filter((drop) => drop.status?.toLocaleLowerCase() === "complete");
+      const syncedDrops = smartbinsDrops.filter((drop: SmartbinDrop) => drop.status?.toLocaleLowerCase() === "claimed");
 
       const countsByUserIdentifier: Record<string, number> = {};
-      syncedDrops.forEach((drop) => {
+      syncedDrops.forEach((drop: SmartbinDrop) => {
         let userIdentifier: string | undefined;
 
         const dUser = drop.userId as any;
@@ -108,85 +102,7 @@ export default function FrequencyTabsSection() {
       // Clear data if loading, error, or no transactions
       setDropFrequencyData([]);
     }
-  }, [smartbinsDrops, smartbinsDropsLoading, smartbinsDropsError, users, usersLoading, usersError]);
-
-  useEffect(() => {
-    // Clear data if still loading or if there's an error
-    if (usersLoading || usersError || requestsLoading || requestsError) {
-      setRequestsFrequencyData([]);
-      return;
-    }
-
-    // Proceed if all data is loaded successfully
-    if (requests && users) {
-      const countsByUserIdentifier: Record<string, number> = {};
-      requests.forEach((request) => {
-        let userIdentifier: string | undefined;
-
-        const rUser = request.userId as any;
-        if (rUser && typeof rUser === "string") {
-          userIdentifier = rUser;
-        }
-
-        if (userIdentifier) {
-          countsByUserIdentifier[userIdentifier] = (countsByUserIdentifier[userIdentifier] || 0) + 1;
-        }
-      });
-
-      const processedData: UserFrequency[] = Object.entries(countsByUserIdentifier).map(([phoneNumber, count]) => {
-        const user = users.find((u) => u.id === phoneNumber);
-        return {
-          phoneNumber,
-          count,
-          name: user?.name || "Unknown",
-          state: user?.state || "Unknown",
-        };
-      });
-      setRequestsFrequencyData(processedData);
-    } else {
-      // Clear data if loading, error, or no transactions
-      setRequestsFrequencyData([]);
-    }
-  }, [requests, requestsLoading, requestsError, users, usersLoading, usersError]);
-
-  useEffect(() => {
-    // Clear data if still loading or if there's an error
-    if (usersLoading || usersError || requestsLoading || requestsError) {
-      setPickupsFrequencyData([]);
-      return;
-    }
-
-    // Proceed if all data is loaded successfully
-    if (requests && users) {
-      const countsByUserIdentifier: Record<string, number> = {};
-      pickups.forEach((pickup) => {
-        let userIdentifier: string | undefined;
-
-        const rUser = pickup.userId as any;
-        if (rUser && typeof rUser === "string") {
-          userIdentifier = rUser;
-        }
-
-        if (userIdentifier) {
-          countsByUserIdentifier[userIdentifier] = (countsByUserIdentifier[userIdentifier] || 0) + 1;
-        }
-      });
-
-      const processedData: UserFrequency[] = Object.entries(countsByUserIdentifier).map(([phoneNumber, count]) => {
-        const user = users.find((u) => u.id === phoneNumber);
-        return {
-          phoneNumber,
-          count,
-          name: user?.name || "Unknown",
-          state: user?.state || "Unknown",
-        };
-      });
-      setPickupsFrequencyData(processedData);
-    } else {
-      // Clear data if loading, error, or no transactions
-      setPickupsFrequencyData([]);
-    }
-  }, [pickups, pickupsLoading, pickupsError, users, usersLoading, usersError]);
+  }, [smartbinsDrops, smartbinsDropsFetched, smartbinsDropsError, users, usersLoading, usersError]);
 
   return (
     <div className="grid grid-cols-1 gap-4 px-4 lg:px-6 *:data-[slot=card]:shadow-xs dark:*:data-[slot=card]:bg-card">
@@ -204,7 +120,7 @@ export default function FrequencyTabsSection() {
               <TabsTrigger value="pickups">Pickups</TabsTrigger>
             </TabsList>
             <TabsContent value="drops">
-              {smartbinsDropsLoading || usersLoading ? (
+              {!smartbinsDropsFetched || usersLoading ? (
                 <div className="space-y-2">
                   <Skeleton className="h-8 w-full" />
                   <Skeleton className="h-8 w-full" />
@@ -229,7 +145,7 @@ export default function FrequencyTabsSection() {
               )}
             </TabsContent>
             <TabsContent value="transactions">
-              {transactionsLoading || usersLoading ? (
+              {!transactionsFetched || usersLoading ? (
                 <div className="space-y-2">
                   <Skeleton className="h-8 w-full" />
                   <Skeleton className="h-8 w-full" />
@@ -254,54 +170,10 @@ export default function FrequencyTabsSection() {
               )}
             </TabsContent>
             <TabsContent value="pickups">
-              {pickupsLoading || usersLoading ? (
-                <div className="space-y-2">
-                  <Skeleton className="h-8 w-full" />
-                  <Skeleton className="h-8 w-full" />
-                  <Skeleton className="h-8 w-full" />
-                </div>
-              ) : pickupsError || usersError ? (
-                <p className="text-destructive">Error loading data: {pickupsError?.message || usersError?.message || "An error occurred."}</p>
-              ) : pickupsFrequencyData.length > 0 ? (
-                <DataTable
-                  sort={[
-                    {
-                      id: "count",
-                      desc: true,
-                    },
-                  ]}
-                  defaultSize={10}
-                  data={pickupsFrequencyData}
-                  columns={userFrequencyTableColumns}
-                />
-              ) : (
-                <p>No completed pickups data available to display frequency.</p>
-              )}
+              <p>No completed pickups data available to display frequency.</p>
             </TabsContent>
             <TabsContent value="requests">
-              {requestsLoading || usersLoading ? (
-                <div className="space-y-2">
-                  <Skeleton className="h-8 w-full" />
-                  <Skeleton className="h-8 w-full" />
-                  <Skeleton className="h-8 w-full" />
-                </div>
-              ) : requestsError || usersError ? (
-                <p className="text-destructive">Error loading data: {requestsError?.message || usersError?.message || "An error occurred."}</p>
-              ) : requestsFrequencyData.length > 0 ? (
-                <DataTable
-                  sort={[
-                    {
-                      id: "count",
-                      desc: true,
-                    },
-                  ]}
-                  defaultSize={10}
-                  data={requestsFrequencyData}
-                  columns={userFrequencyTableColumns}
-                />
-              ) : (
-                <p>No completed requests data available to display frequency.</p>
-              )}
+              <p>No completed requests data available to display frequency.</p>
             </TabsContent>
           </Tabs>
         </CardContent>

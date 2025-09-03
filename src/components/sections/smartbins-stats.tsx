@@ -1,5 +1,4 @@
 "use client";
-import { useEffect, useState } from "react";
 //ui
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -19,43 +18,7 @@ function CardSkeleton() {
   );
 }
 
-export function SmartbinsStatsSection({ loading, error, smartbins, smartbinDrops }: { loading: boolean; error: any; smartbins: Smartbin[]; smartbinDrops: SmartbinDrop[] }) {
-  const [stats, setStats] = useState({
-    deployed: 0,
-  });
-  const [dropsStats, setDropsStats] = useState({
-    total: 0,
-    plastic: 0,
-    other: 0,
-  });
-  const [pointsStats, setPointsStats] = useState({
-    total: 0,
-    completed: 0,
-    pending: 0,
-    expired: 0,
-  });
-
-  useEffect(() => {
-    if (!loading && !error) {
-      //count active and halted accounts
-      const deployed = smartbins.filter((user) => user.status === "deployed").length;
-      setStats({ deployed });
-    }
-  }, [smartbins, loading, error]);
-
-  useEffect(() => {
-    if (smartbinDrops.length > 0) {
-      const total = smartbinDrops.reduce((total, drop) => total + drop?.plastic + drop?.other, 0);
-      const plastic = smartbinDrops.reduce((total, drop) => total + drop?.plastic, 0);
-      const other = smartbinDrops.reduce((total, drop) => total + drop?.other, 0);
-      const completed = smartbinDrops.filter((drop) => drop.status === "complete").length;
-      const pending = smartbinDrops.filter((drop) => drop.status === "pending").length;
-      const expired = smartbinDrops.filter((drop) => drop.status === "expired").length;
-
-      setDropsStats({ total, plastic, other });
-      setPointsStats({ total: smartbinDrops.length, completed, pending, expired });
-    }
-  }, [smartbinDrops]);
+export function SmartbinsStatsSection({ loading, error, smartbins, smartbinDrops }: { loading: boolean; error: any; smartbins: any; smartbinDrops: any }) {
 
   if (loading) {
     return (
@@ -87,7 +50,7 @@ export function SmartbinsStatsSection({ loading, error, smartbins, smartbinDrops
       <Card className="@container/card gap-2">
         <CardHeader className="relative">
           <CardDescription>Total Smartbins</CardDescription>
-          <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">{smartbins.length}</CardTitle>
+          <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">{smartbins?.total}</CardTitle>
           <div className="absolute right-4 top-0">
             <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
               <TrendingUpIcon className="size-3" />
@@ -105,7 +68,7 @@ export function SmartbinsStatsSection({ loading, error, smartbins, smartbinDrops
       <Card className="@container/card gap-2">
         <CardHeader className="relative">
           <CardDescription>Total Deployed Smartbins</CardDescription>
-          <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">{stats.deployed}</CardTitle>
+          <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">{smartbins?.deployed}</CardTitle>
           <div className="absolute right-4 top-0">
             <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
               <TrendingUpIcon className="size-3" />
@@ -123,7 +86,7 @@ export function SmartbinsStatsSection({ loading, error, smartbins, smartbinDrops
       <Card className="@container/card gap-2">
         <CardHeader className="relative">
           <CardDescription>Total Drops</CardDescription>
-          <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">{smartbinDrops.length}</CardTitle>
+          <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">{smartbinDrops?.total}</CardTitle>
           <div className="absolute right-4 top-0">
             <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
               <TrendingUpIcon className="size-3" />
@@ -141,7 +104,7 @@ export function SmartbinsStatsSection({ loading, error, smartbins, smartbinDrops
       <Card className="@container/card gap-2">
         <CardHeader className="relative">
           <CardDescription>Total Claimed Drops</CardDescription>
-          <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">{pointsStats.completed}</CardTitle>
+          <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">{smartbinDrops?.claimed}</CardTitle>
           <div className="absolute right-4 top-0">
             <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
               <TrendingUpIcon className="size-3" />

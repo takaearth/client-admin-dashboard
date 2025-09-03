@@ -8,73 +8,8 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbP
 import { DataTable } from "@/components/tables/data-tables";
 import { requestColumns } from "@/components/tables/schemas/requests";
 //custom
-import useFirebaseRequests from "@/hooks/firebase-requests";
 
 export default function RequestsDataTablePage() {
-  const { requests, loading, error } = useFirebaseRequests();
-
-  if (loading) {
-    return (
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
-          <div className="flex items-center gap-2 px-4">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="#">Data Tables</BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>Requests Table</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-          </div>
-        </header>
-        <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm py-12">
-          <div className="flex flex-col items-center gap-2 text-center">
-            <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
-            <h3 className="text-lg font-semibold tracking-tight text-muted-foreground">Loading requests...</h3>
-            <p className="text-sm text-muted-foreground">Please wait while we fetch the data.</p>
-          </div>
-        </div>
-      </SidebarInset>
-    );
-  }
-
-  if (error) {
-    return (
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
-          <div className="flex items-center gap-2 px-4">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="#">Data Tables</BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>Requests Table</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-          </div>
-        </header>
-        <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-destructive shadow-sm py-12">
-          <div className="flex flex-col items-center gap-2 text-center">
-            <AlertTriangle className="h-10 w-10 text-destructive" />
-            <h3 className="text-lg font-semibold tracking-tight text-destructive">Error loading requests</h3>
-            <p className="text-sm text-muted-foreground">{error.message || "An unexpected error occurred. Please try again later."}</p>
-          </div>
-        </div>
-      </SidebarInset>
-    );
-  }
-
   return (
     <SidebarInset>
       <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
@@ -99,7 +34,7 @@ export default function RequestsDataTablePage() {
           visibility={{
             id: false,
           }}
-          data={requests}
+          data={[]}
           columns={requestColumns}
         />
       </div>

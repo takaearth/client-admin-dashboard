@@ -4,7 +4,7 @@ import { MarkerF, GoogleMap, InfoWindowF, useJsApiLoader, MarkerClustererF } fro
 import { Card, CardDescription, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 //custom
 import { cn } from "@/lib/utils";
-import useFirebaseSmartbins from "@/hooks/firebase-smartbins";
+import { useGetSmartbins } from "@/data/smartbins";
 
 const libraries: any = ["places"];
 const mapOptions = {
@@ -21,7 +21,7 @@ const mapCenter = {
 export default function SmartbinsMap({ className, ...props }: React.ComponentProps<"div">) {
   const id = "smartbins-map";
 
-  const { smartbins, loading, error } = useFirebaseSmartbins();
+  const { data: smartbins, error, isFetched } = useGetSmartbins();
   const [activeMarker, setActiveMarker] = useState<string | number | null>(null);
 
   const { isLoaded } = useJsApiLoader({
@@ -60,7 +60,7 @@ export default function SmartbinsMap({ className, ...props }: React.ComponentPro
         </div>
       </CardHeader>
       <CardContent className="flex flex-1 justify-center">
-        {!loading && !error && (
+        {isFetched && !error && (
           <GoogleMap
             zoom={10}
             center={mapCenter}
@@ -72,7 +72,7 @@ export default function SmartbinsMap({ className, ...props }: React.ComponentPro
             <MarkerClustererF>
               {(clusterer) => (
                 <React.Fragment>
-                  {smartbins.map((smartbin, i) => {
+                  {smartbins?.map((smartbin, i) => {
                     // Ensure smartbin.coords is valid before rendering MarkerF
                     // Also, consider using a stable ID from `smartbin` for `key` and `activeMarker` if available,
                     // instead of index `i`, especially if the list can be filtered or reordered.

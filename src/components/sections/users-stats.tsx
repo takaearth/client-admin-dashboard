@@ -1,13 +1,13 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 //ui
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TrendingDownIcon, TrendingUpIcon, AlertTriangle } from "lucide-react";
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 //custom
-import useFirebaseUsers from "@/hooks/firebase-users";
-import useFirebaseEvents from "@/hooks/firebase-events";
+import { User } from "@/lib/types";
+import { useGetUsers } from "@/data/users";
 
 function CardSkeleton() {
   return (
@@ -21,24 +21,21 @@ function CardSkeleton() {
 }
 
 export function UsersStatsSection() {
-  const { users, loading: usersLoading, error: usersError } = useFirebaseUsers();
-  const {events, loading: eventsLoading, error: eventsError} = useFirebaseEvents();
+  const { data: users, error, isFetched } = useGetUsers();
 
-  const [stats, setStats] = useState({
-    active: 0,
-    halted: 0,
-  });
+  const usersStats = useMemo(() => {
+    if (!isFetched) return null;
 
-  useEffect(() => {
-    if (!usersLoading && !usersError) {
-      //count active and halted accounts
-      const active = users.filter((user) => user.state === "active").length;
-      const halted = users.filter((user) => user.state === "halted").length;
-      setStats({ active, halted });
-    }
-  }, [users, usersLoading, usersError]);
+    let active = 0, halted = 0;
 
-  if (usersLoading || eventsLoading) {
+    users.forEach((user: User) => {
+      if (user.state === "active") active++;
+      if (user.state === "halted") halted++;
+    });
+    return { total: users.length, active, halted };
+  }, [users, isFetched]);
+
+  if (!isFetched) {
     return (
       <div className="*:data-[slot=card]:shadow-xs @xl/main:grid-cols-2 @5xl/main:grid-cols-4 grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card lg:px-6">
         <CardSkeleton />
@@ -49,7 +46,7 @@ export function UsersStatsSection() {
     );
   }
 
-  if (usersError || eventsError) {
+  if (error) {
     return (
       <div className="grid grid-cols-1 gap-4 px-4 @xl/main:grid-cols-2 @5xl/main:grid-cols-4 lg:px-6">
         <div className="col-span-full flex flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-destructive bg-destructive/10 p-8 shadow-sm">
@@ -57,10 +54,7 @@ export function UsersStatsSection() {
           <h3 className="mt-4 text-lg font-semibold tracking-tight text-destructive">Error Loading Card Data</h3>
           <p className="mt-2 text-sm text-center text-muted-foreground">
             {
-              usersError && (usersError.message || "An unexpected error occurred while fetching data for the users card. Please try again later.")
-            }
-            {
-              eventsError && (eventsError.message || "An unexpected error occurred while fetching data for the events card. Please try again later.")
+              error && (error.message || "An unexpected error occurred while fetching data. Please try again later.")
             }
           </p>
         </div>
@@ -73,7 +67,7 @@ export function UsersStatsSection() {
       <Card className="@container/card gap-2">
         <CardHeader className="relative">
           <CardDescription>Total Events</CardDescription>
-          <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">{events.length}</CardTitle>
+          <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">{0}</CardTitle>
           <div className="absolute right-4 top-0">
             <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
               <TrendingUpIcon className="size-3" />
@@ -91,7 +85,8 @@ export function UsersStatsSection() {
       <Card className="@container/card gap-2">
         <CardHeader className="relative">
           <CardDescription>Total Accounts</CardDescription>
-          <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">{users.length}</CardTitle>
+          <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">{
+          usersStats?.total}</CardTitle>
           <div className="absolute right-4 top-0">
             <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
               <TrendingUpIcon className="size-3" />
@@ -109,7 +104,7 @@ export function UsersStatsSection() {
       <Card className="@container/card gap-2">
         <CardHeader className="relative">
           <CardDescription>Active Accounts</CardDescription>
-          <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">{stats.active}</CardTitle>
+          <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">{usersStats?.active}</CardTitle>
           <div className="absolute right-4 top-0">
             <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
               <TrendingUpIcon className="size-3" />
@@ -127,7 +122,7 @@ export function UsersStatsSection() {
       <Card className="@container/card gap-2">
         <CardHeader className="relative">
           <CardDescription>Halted Accounts</CardDescription>
-          <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">{stats.halted}</CardTitle>
+          <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">{usersStats?.halted}</CardTitle>
           <div className="absolute right-4 top-0">
             <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
               <TrendingUpIcon className="size-3" />

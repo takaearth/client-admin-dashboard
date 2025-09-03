@@ -104,10 +104,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             url: `${dataTablesBaseUrl}/pickups`,
           },
           {
-            title: "Employees",
-            url: `${dataTablesBaseUrl}/employees`,
-          },
-          {
             title: "Casuals",
             url: `${dataTablesBaseUrl}/casuals`,
           },

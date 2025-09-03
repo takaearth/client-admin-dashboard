@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { CircleXIcon, CheckCircle2Icon, HourglassIcon, SmartphoneIcon, SignalIcon, RefrigeratorIcon } from "lucide-react";
 //custom
 import { cn } from "@/lib/utils";
-import { formatDate } from "@/lib";
+import { timestampToDate } from "@/lib";
 import { SmartbinDrop } from "@/lib/types";
 
 export const smartbinsDropColumns: ColumnDef<SmartbinDrop>[] = [
@@ -56,7 +56,7 @@ export const smartbinsDropColumns: ColumnDef<SmartbinDrop>[] = [
     header: "Created At",
     cell: ({ row }) => {
       const created = row.original.created;
-      return formatDate(created);
+      return timestampToDate(created);
     },
   },
   {
@@ -64,7 +64,7 @@ export const smartbinsDropColumns: ColumnDef<SmartbinDrop>[] = [
     header: "Drop Timestamp",
     cell: ({ row }) => {
       const timestamp = row.original.timestamp;
-      return formatDate(timestamp);
+      return timestampToDate(timestamp);
     },
   },
   {
@@ -103,7 +103,7 @@ export const smartbinsDropColumns: ColumnDef<SmartbinDrop>[] = [
     header: "Synced At",
     cell: ({ row }) => {
       const synced = row.original.synced;
-      return formatDate(synced);
+      return timestampToDate(synced);
     },
   },
 ];
